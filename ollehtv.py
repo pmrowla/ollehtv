@@ -237,3 +237,16 @@ class OllehTV(object):
         s = self.get_state()
         if s['state'] == OllehTVState.ON:
             self.input_button(OllehTVButton.POWER)
+
+    def change_channel(self, channel):
+        '''Change the STB channel.
+
+        Parameters:
+            channel (int): The channel to change to.
+
+        '''
+        payload = {
+            'CH_NO': str(channel),
+            'TYPE': '0',
+        }
+        self._post('rmt/changeChannel', payload=payload)

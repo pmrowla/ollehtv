@@ -181,3 +181,16 @@ class TestOllehTV(object):
                 status_code=200,
             )
             o.turn_off()
+
+    def test_change_channel(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/changeChannel',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.change_channel(123)

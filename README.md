@@ -6,3 +6,5 @@ Python library for controlling an Olleh TV set-top-boxes.
 
 In order to control your STB you must also authenticate a remote using the Olleh playtv mobile app.
 Once you have authenticated the app, you will need to [proxy](https://mitmproxy.org) an app API request to get the `DEVICE_ID` and `SVC_PW` values for your device.
+
+![mitmproxy screenshot](http://i.imgur.com/1azSJKK.png)

@@ -7,13 +7,18 @@ import requests_mock
 
 from factory import Factory
 
-import ollehtv
+from ollehtv import (
+    OllehTV,
+    OllehTVButton,
+    OllehTVError,
+    OllehTVState,
+)
 
 
 class OllehTVFactory(Factory):
 
     class Meta:
-        model = ollehtv.OllehTV
+        model = OllehTV
 
     device_id = 'ABCDEF12-3456-7890-ABCD-EF1234567890'
     svc_pw = 'abcdef1234567890'
@@ -41,10 +46,10 @@ class TestOllehTV(object):
                 status_code=200,
             )
             o = OllehTVFactory()
-            with pytest.raises(ollehtv.OllehTVError):
+            with pytest.raises(OllehTVError):
                 o.validate()
 
-    def test_get_state(self):
+    def test_get_state_on(self):
         with requests_mock.Mocker() as m:
             m.register_uri(
                 'POST',
@@ -52,20 +57,127 @@ class TestOllehTV(object):
                  '/rmt/getCurrentState'),
                 json={
                     'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
-                    'DATA': {
-                        'CHNL_NM': 'SBS',
-                        'CHNL_NO': '5',
-                        'FIN_TM': '16:00',
-                        'PRGM_ID': 'A123456890',
-                        'PRGM_NM': 'Foo',
-                        'STB_STATE': '0',
-                        'STRT_TM': '15:00',
-                    },
+                    'DATA': {'STB_STATE': '2'},
                 },
                 status_code=200,
             )
             o = OllehTVFactory()
             state = o.get_state()
-            assert state['channel_name'] == 'SBS'
-            assert state['channel_num'] == 5
-            assert state['state'] == 0
+            assert state['state'] == OllehTVState.ON
+
+    def test_get_state_standby(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                ('https://ollehtvplay.ktipmedia.co.kr/otp/v1'
+                 '/rmt/getCurrentState'),
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {'STB_STATE': '1'},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            state = o.get_state()
+            assert state['state'] == OllehTVState.STANDBY
+
+    def test_get_state_off(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                ('https://ollehtvplay.ktipmedia.co.kr/otp/v1'
+                 '/rmt/getCurrentState'),
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {'STB_STATE': '0'},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            with pytest.raises(OllehTVError):
+                o.get_state()
+
+    def test_input_button(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/inputButton',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.input_button(OllehTVButton.POWER)
+
+    def test_mute(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/inputButton',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                },
+                status_code=200,
+            )
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/getMuteState',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {
+                        'STATE': '0',
+                    },
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            assert not o.muted
+            o.mute()
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/getMuteState',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {
+                        'STATE': '1',
+                    },
+                },
+                status_code=200,
+            )
+            assert o.muted
+            o.unmute()
+
+    def test_power(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/rmt/inputButton',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                },
+                status_code=200,
+            )
+            m.register_uri(
+                'POST',
+                ('https://ollehtvplay.ktipmedia.co.kr/otp/v1'
+                 '/rmt/getCurrentState'),
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {'STB_STATE': '1'},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.turn_on()
+            m.register_uri(
+                'POST',
+                ('https://ollehtvplay.ktipmedia.co.kr/otp/v1'
+                 '/rmt/getCurrentState'),
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {'STB_STATE': '2'},
+                },
+                status_code=200,
+            )
+            o.turn_off()

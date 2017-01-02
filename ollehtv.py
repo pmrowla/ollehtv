@@ -11,7 +11,52 @@ from __future__ import (
 
 from future.utils import python_2_unicode_compatible
 
+import enum
 import requests
+
+
+@enum.unique
+class OllehTVButton(enum.IntEnum):
+
+    JIUGI = 8
+    HWAGIN = 10
+    NAGAGI = 27
+    HOME = 36
+    ZERO = 48
+    ONE = 49
+    TWO = 50
+    THREE = 51
+    FOUR = 52
+    FIVE = 53
+    SIX = 54
+    SEVEN = 55
+    EIGHT = 56
+    NINE = 57
+    STAR = 112
+    POUND = 113
+    IJEON = 115
+    RED = 403
+    GREEN = 404
+    YELLOW = 405
+    BLUE = 406
+    POWER = 409
+    REWIND = 412
+    STOP = 413
+    PLAY_PAUSE = 415
+    FAST_FORWARD = 417
+    CHANNEL_UP = 427
+    CHANNEL_DOWN = 428
+    VOLUME_UP = 447
+    VOLUME_DOWN = 448
+    MUTE = 449
+
+
+@enum.unique
+class OllehTVState(enum.IntEnum):
+
+    OFF = 0
+    STANDBY = 1
+    ON = 2
 
 
 @python_2_unicode_compatible
@@ -126,6 +171,69 @@ class OllehTV(object):
             'program_name': data.get('PRGM_NM', ''),
             'start_time': data.get('STRT_TM', ''),
             'end_time': data.get('FIN_TM', ''),
-            'state': int(data.get('STB_STATE', -1)),
+            'state': int(data.get('STB_STATE', OllehTVState.OFF)),
         }
+        if state['state'] == OllehTVState.OFF:
+            raise OllehTVError(-1, 'The STB is unreachable.')
         return state
+
+    def input_button(self, code):
+        '''Send a remote button press to the STB.
+
+        Parameters:
+            code (int, str): The button key code to send.
+
+        '''
+        payload = {'KEY_CD': str(code)}
+        self._post('rmt/inputButton', payload=payload)
+
+    @property
+    def muted(self):
+        '''Return the current STB mute state.
+
+        Return:
+            bool: True if STB is muted, False if not muted.
+
+        Raises:
+            OllehTVError upon an API error.
+
+        '''
+        response = self._post('rmt/getMuteState')
+        data = response['DATA']
+        if 'STATE' not in data:
+            raise OllehTVError
+        if int(data['STATE']) == 0:
+            return False
+        else:
+            return True
+
+    def mute(self):
+        '''Mute the STB.'''
+        if not self.muted:
+            self.input_button(OllehTVButton.MUTE)
+
+    def unmute(self):
+        '''Unmute the STB.'''
+        if self.muted:
+            self.input_button(OllehTVButton.MUTE)
+
+    @property
+    def powered_on(self):
+        '''Return True if the STB is turned on'''
+        s = self.get_state
+        if s['state'] == OllehTVState.ON:
+            return True
+        else:
+            return False
+
+    def turn_on(self):
+        '''Turn on the STB.'''
+        s = self.get_state()
+        if s['state'] == OllehTVState.STANDBY:
+            self.input_button(OllehTVButton.POWER)
+
+    def turn_off(self):
+        '''Turn off the STB.'''
+        s = self.get_state()
+        if s['state'] == OllehTVState.ON:
+            self.input_button(OllehTVButton.POWER)

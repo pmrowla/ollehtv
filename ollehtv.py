@@ -277,7 +277,7 @@ class OllehTV(object):
                 date.
 
         '''
-        payload = {'GENRE_ID':  str(int(genre))}
+        payload = {'GENRE_ID': str(int(genre))}
         if date:
             payload['SRCH_DATE'] = str(date)
         else:

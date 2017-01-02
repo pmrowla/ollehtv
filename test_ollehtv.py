@@ -194,3 +194,45 @@ class TestOllehTV(object):
             )
             o = OllehTVFactory()
             o.change_channel(123)
+
+    def test_get_program_listing(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/epg/list',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.get_program_listing()
+
+    def test_get_favorite_channels(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/epg/getMyChannel',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.get_favorite_channels()
+
+    def test_get_channel_detail(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/epg/detail',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.get_channel_detail(1)

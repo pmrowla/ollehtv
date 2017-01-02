@@ -59,6 +59,22 @@ class OllehTVState(enum.IntEnum):
     ON = 2
 
 
+@enum.unique
+class OllehTVGenre(enum.IntEnum):
+
+    FAVORITES = 0
+    GENERAL = 1     # Terrestrial network, general purpose, home shopping
+    ENTERTAINMENT = 2   # Drama, enterntainment, music
+    MOVIES = 3  # Movie, series
+    SPORTS = 4  # Sports, leisure
+    KIDS = 5    # Animation, kids, educational
+    DOCUMENTARY = 6     # Documentary, self-improvement, religion
+    NEWS = 7    # News, financial
+    PUBLIC_ACCESS = 8   # Public access, information
+    OPEN = 9    # Open
+    CHARGED = 10    # Charged
+
+
 @python_2_unicode_compatible
 class OllehTVError(Exception):
     '''Base OllehTV API Error class'''
@@ -181,10 +197,10 @@ class OllehTV(object):
         '''Send a remote button press to the STB.
 
         Parameters:
-            code (int, str): The button key code to send.
+            code (OllehTVButton): The button key code to send.
 
         '''
-        payload = {'KEY_CD': str(code)}
+        payload = {'KEY_CD': str(int(code))}
         self._post('rmt/inputButton', payload=payload)
 
     @property
@@ -250,3 +266,37 @@ class OllehTV(object):
             'TYPE': '0',
         }
         self._post('rmt/changeChannel', payload=payload)
+
+    def get_program_listing(self, genre=OllehTVGenre.FAVORITES, date=None):
+        '''Get the TV listings for the specified set of channels.
+
+        Parameters:
+            genre (OllehTVGenre): The type of channels to list, defaults to
+                favorites.
+            date (Date): The specified date to search, defaults to current
+                date.
+
+        '''
+        payload = {'GENRE_ID':  str(int(genre))}
+        if date:
+            payload['SRCH_DATE'] = str(date)
+        else:
+            payload['SRCH_DATE'] = '0'
+        response = self._post('epg/list', payload=payload)
+        return response['DATA']
+
+    def get_favorite_channels(self):
+        '''Get a list of the favorite channels for this STB.'''
+        response = self._post('epg/getMyChannel')
+        return response['DATA']
+
+    def get_channel_detail(self, channel):
+        '''Get the detailed TV listings for a specific channel.
+
+        Parameters:
+            channel (int): The channel to fetch.
+
+        '''
+        payload = {'CH_NO': str(channel)}
+        response = self._post('epg/detail', payload=payload)
+        return response['DATA']

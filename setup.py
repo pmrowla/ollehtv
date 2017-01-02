@@ -27,5 +27,5 @@ setup(
     ],
     keywords='olleh ollehtv',
     py_modules=['ollehtv'],
-    install_requires=['requests'],
+    install_requires=['future', 'requests'],
 )

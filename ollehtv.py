@@ -9,9 +9,12 @@ from __future__ import (
     unicode_literals,
 )
 
+from future.utils import python_2_unicode_compatible
+
 import requests
 
 
+@python_2_unicode_compatible
 class OllehTVError(Exception):
     '''Base OllehTV API Error class'''
 
@@ -19,13 +22,11 @@ class OllehTVError(Exception):
         self.code = code
         self.message = message
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}: {}'.format(self.code, self.message)
 
-    def __str__(self):
-        return unicode(self).encode('utf-8')
 
-
+@python_2_unicode_compatible
 class OllehTV(object):
     '''Class for interacting with Olleh TV set-top-boxes.
 

@@ -6,6 +6,12 @@ here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+    try:
+        import pypandoc
+        long_description = pypandoc.convert_text(
+            long_description, 'rst', format='md')
+    except ImportError:
+        pass
 
 setup(
     name='ollehtv',

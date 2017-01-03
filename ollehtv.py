@@ -22,6 +22,10 @@ class OllehTVButton(enum.IntEnum):
     HWAGIN = 10
     NAGAGI = 27
     HOME = 36
+    LEFT = 37
+    UP = 38
+    RIGHT = 39
+    DOWN = 40
     ZERO = 48
     ONE = 49
     TWO = 50

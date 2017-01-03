@@ -7,9 +7,7 @@ Python library for controlling an Olleh TV set-top-boxes.
 ## Installation
 
 ```
-$ git clone https://github.com/pmrowla/ollehtv.git
-$ cd ollehtv
-$ pip install .
+$ pip install ollehtv
 ```
 
 If you also wish to run the development tests you will need to do

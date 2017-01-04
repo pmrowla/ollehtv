@@ -11,6 +11,8 @@ from __future__ import (
 
 from future.utils import python_2_unicode_compatible
 
+from datetime import date
+
 import enum
 import requests
 
@@ -271,19 +273,25 @@ class OllehTV(object):
         }
         self._post('rmt/changeChannel', payload=payload)
 
-    def get_program_listing(self, genre=OllehTVGenre.FAVORITES, date=None):
+    def get_program_listing(
+            self,
+            genre=OllehTVGenre.FAVORITES,
+            search_date=None):
         '''Get the TV listings for the specified set of channels.
 
         Parameters:
             genre (OllehTVGenre): The type of channels to list, defaults to
                 favorites.
-            date (Date): The specified date to search, defaults to current
-                date.
+            search_date (datetime.date): The specified date to search,
+                defaults to current date.
 
         '''
         payload = {'GENRE_ID': str(int(genre))}
-        if date:
-            payload['SRCH_DATE'] = str(date)
+        if search_date:
+            if isinstance(search_date, date):
+                payload['SRCH_DATE'] = search_date.strftime('%Y%m%d')
+            else:
+                payload['SRCH_DATE'] = str(search_date)
         else:
             payload['SRCH_DATE'] = '0'
         response = self._post('epg/list', payload=payload)

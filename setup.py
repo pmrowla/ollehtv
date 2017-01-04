@@ -33,5 +33,5 @@ setup(
     ],
     keywords='olleh ollehtv',
     py_modules=['ollehtv'],
-    install_requires=['future', 'requests'],
+    install_requires=['future', 'requests', 'enum34'],
 )

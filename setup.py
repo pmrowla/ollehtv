@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='ollehtv',
-    version='0.1.1',
+    version='0.1.2',
     description='Python library for controlling an Olleh TV STB',
     long_description=long_description,
     url='https://github.com/pmrowla/ollehtv',

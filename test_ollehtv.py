@@ -210,7 +210,7 @@ class TestOllehTV(object):
             o = OllehTVFactory()
             o.get_program_listing()
             o.get_program_listing(search_date='20170101')
-            o.get_program_listing(search_date=datetime.date(2017, 01, 01))
+            o.get_program_listing(search_date=datetime.date(2017, 1, 1))
 
     def test_get_favorite_channels(self):
         with requests_mock.Mocker() as m:

@@ -312,3 +312,17 @@ class OllehTV(object):
         payload = {'CH_NO': str(channel)}
         response = self._post('epg/detail', payload=payload)
         return response['DATA']
+
+    def search(self, query):
+        '''Search TV listings for the specified query.
+
+        Parameters:
+            query (str): Search query.
+
+        Return:
+            Search results.
+
+        '''
+        payload = {'SRCH_WORD': query}
+        response = self._post('srch/epg', payload=payload)
+        return response['DATA']

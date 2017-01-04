@@ -239,3 +239,17 @@ class TestOllehTV(object):
             )
             o = OllehTVFactory()
             o.get_channel_detail(1)
+
+    def test_search(self):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                'POST',
+                'https://ollehtvplay.ktipmedia.co.kr/otp/v1/srch/epg',
+                json={
+                    'STATUS': {'CODE': '000', 'MESSAGE': 'OK'},
+                    'DATA': {},
+                },
+                status_code=200,
+            )
+            o = OllehTVFactory()
+            o.search('인기가요')
